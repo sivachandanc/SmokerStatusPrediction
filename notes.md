@@ -1,0 +1,1 @@
+- visit https://docs.snowflake.com/en/user-guide/python-connector-install.html for installing snowflake connector for python
