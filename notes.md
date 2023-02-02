@@ -1,4 +1,0 @@
-- visit https://docs.snowflake.com/en/user-guide/python-connector-install.html for installing snowflake connector for python
-- install  pip install --upgrade snowflake-sqlalchemy
-- python snowflake_connection_test.py -u sivachandan -p "Sivaking1@" -a "tnb79518.us-east-1"
-- 
