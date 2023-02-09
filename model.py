@@ -6,6 +6,7 @@ import joblib
 import logging
 
 def create_model() -> bool:
+
     """ This function creates a Random Forest Classifier model and saves it as tree_model.joblib
     Args:
         None
@@ -13,6 +14,7 @@ def create_model() -> bool:
         True: If the model is created and saved successfully
         False: If the model is not created and saved successfully
     """
+    
     # create logger
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
