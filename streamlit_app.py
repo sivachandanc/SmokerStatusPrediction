@@ -5,8 +5,7 @@ import inserting_data
 import time
 
 st.set_page_config(page_title="Smoking Prediction",
-                   page_icon=":guardsman:",
-                   layout="wide")
+                   page_icon=":guardsman:")
 
 # Adding custom CSS to change the look and feel of the Streamlit app
 st.markdown("""
@@ -44,6 +43,7 @@ st.subheader("An End-End Data Engineering Project by Siva Chandan")
 df = pd.DataFrame()
 
 with st.form("input_df"):
+    
 
     Age = st.number_input("Age",min_value = 21, max_value =98 , \
     help = "Enter your age here(Patient have to be 21 to use this)")
@@ -82,19 +82,25 @@ if submit_function:
     })
     st.dataframe(df)
     smoking_status = model.load_predict(df)
+    st.markdown("<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.14.0/css/all.css' integrity='sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc' crossorigin='anonymous'>", unsafe_allow_html=True)
     if smoking_status == 1:
-        st.write("Smoking Positive")
+        # Include the Font Awesome CSS file
+
+        # Display the icon
+        st.markdown("<p><strong>The Patient is Smoking <i class='fas fa-smoking'></i></strong></p>", unsafe_allow_html=True)
     elif smoking_status == 0:
-        st.write("Smoking Negative")
+        # Display the icon
+        st.markdown("<p><strong>The Patient is Not Smoking <i class='fas fa-smoking-ban'></i></strong></p>", unsafe_allow_html=True)
+
 with st.form("add_data"):
     answer = st.radio("Add the record to Data base", ("Yes", "No"))
     next_submit_function = st.form_submit_button("Submit")
 
 if next_submit_function:
     if answer == 'Yes':
-        with st.spinner('Creating Doc String:'):
+        with st.spinner('Adding Data'):
             inserting_data.inserting_data(df,'smoking','public','accountadmin','compute_wh')
-        st.success('Inserting the Data', icon="✅")
+        st.success('Record Appended', icon="✅")
             
     elif answer == "No":
         with st.spinner('Reloading the webapp'):
