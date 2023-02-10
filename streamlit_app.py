@@ -40,7 +40,7 @@ st.markdown("""
 
 st.title("Smoking Status Detection")
 st.subheader("An End-End Data Engineering Project by Siva Chandan")
-df = pd.DataFrame()
+df_main = pd.DataFrame()
 
 with st.form("input_df"):
     
@@ -72,13 +72,14 @@ with st.form("input_df"):
     serum_creatinine = st.number_input("serum creatinine",min_value = 0.1, max_value =1.0, \
     value = 0.9, step = 0.01, help = "Enter serum creatinine")
 
+    answer = st.radio("Add the record to Data base", ("Yes", "No"))
+
     submit_function = st.form_submit_button("Submit")
 
 if submit_function:
     df = pd.DataFrame({
                 'age':[int(Age)], 'height(cm)':[int(height)], 'weight(kg)':[int(weight)], 'waist(cm)':[float(waist)], 'fasting blood sugar':[int(fasting_blood_sugar)],
        'Cholesterol':[int(cholesterol)], 'hemoglobin':[int(hemoglobin)], 'Urine protein':[int(urine_protein)], 'serum creatinine':[float(serum_creatinine)]
-
     })
     st.dataframe(df)
     smoking_status = model.load_predict(df)
@@ -92,21 +93,19 @@ if submit_function:
         # Display the icon
         st.markdown("<p><strong>The Patient is Not Smoking <i class='fas fa-smoking-ban'></i></strong></p>", unsafe_allow_html=True)
 
-with st.form("add_data"):
-    answer = st.radio("Add the record to Data base", ("Yes", "No"))
-    next_submit_function = st.form_submit_button("Submit")
 
-if next_submit_function:
+
     if answer == 'Yes':
         with st.spinner('Adding Data'):
+            st.dataframe(df)
             inserting_data.inserting_data(df,'smoking','public','accountadmin','compute_wh')
-        st.success('Record Appended', icon="✅")
-            
+            st.success('Record Appended', icon="✅")
+                
     elif answer == "No":
         with st.spinner('Reloading the webapp'):
             time.sleep(1.5)
-        st.experimental_rerun()
-          
+            st.experimental_rerun()
+            
 
 
 
