@@ -119,8 +119,8 @@ def load_predict(df:pd.DataFrame) -> int:
 
 if __name__ == "__main__":
 
-    pass
-    # create_model()
+    # pass
+    create_model()
 
     # df_series = pd.read_csv('./data/train_dataset.csv').iloc[0][['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
     #    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
