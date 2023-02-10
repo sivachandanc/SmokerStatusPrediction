@@ -10,10 +10,13 @@ import logging
 
 import os
 
+import parameters
 
 
 
-def inserting_data(df):
+
+def inserting_data(df,database:str, schema:str,
+                   role:str, warehouse:str) -> bool:
 
     """
     This function is used to ingest data into snowflake.
@@ -46,13 +49,13 @@ def inserting_data(df):
     try:
         logger.info("Creating SQL engine with give Credntials")
 
-        engine = create_engine(URL(user = os.getenv('SNOWFLAKE_PASSWORD'),\
-            password = os.getenv('SNOWFLAKE_PASSWORD'),\
-                account = os.getenv('SNOWFLAKE_ACCOUNT'),\
-                    database = os.getenv('SNOWFLAKE_DATABASE'),\
-                        schema= os.getenv('SNOWFLAKE_SCHEMA'),\
-                            role= os.getenv('SNOWFLAKE_ROLE'),\
-                                warehouse = os.getenv('SNOWFLAKE_WAREHOUSE')))
+        engine = create_engine(URL(user = parameters.get_parameters('user_name'),\
+            password = parameters.get_parameters('password'),\
+                account = parameters.get_parameters('account_number'),\
+                    database = database,\
+                        schema= schema,\
+                            role= role,\
+                                warehouse = warehouse))
 
         logger.debug("Engine Created Sucesfully")
         logger.info("Creating a Connection Object")
@@ -62,7 +65,7 @@ def inserting_data(df):
 
         logger.debug(f"Connection Object Created Succesfully -> {one_row[0]}")
 
-        logger.info("Loading Data Chunk wise")
+        logger.info("Loading Data")
 
         df.to_sql('smoking',con=conn,index=False,if_exists='append')
 
@@ -70,6 +73,7 @@ def inserting_data(df):
         logger.debug("Data Entry Inserted")
         conn.close() 
         engine.dispose()
+        return True
 
     except Exception as e:
         logger.error(e)
@@ -78,5 +82,9 @@ def inserting_data(df):
 
 
 if __name__=="__main__":
-    pass
-
+    
+    df = pd.DataFrame(pd.read_csv('./data/train_dataset.csv').iloc[0,:])
+    
+    # inserting_data(df,'smoking','public','accountadmin','compute_wh')
+    print(df.head())
+    # testing
