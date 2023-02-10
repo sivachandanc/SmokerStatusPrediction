@@ -35,9 +35,11 @@ def create_model() -> bool:
         # Loading the data
         logger.debug("Loading the CSV file")
         df_raw = pd.read_csv("./data/train_dataset.csv")
+        df_raw = df_raw[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+       'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+       'smoking']]
         logger.info("Sucessfully loaded the csv file")
 
-        # 
 
         #Loadng the Classifier
         logger.debug("Creating the Random Forest Classifier model")
@@ -50,7 +52,7 @@ def create_model() -> bool:
         logger.info("Training Done")
 
         # Saving the model
-        filename = 'tree_model.joblib'
+        filename = './model/tree_model.joblib'
         logger.debug("Saving the model")
         joblib.dump(model, filename)
         logger.info("Model saved as tree_model.joblib")
@@ -61,7 +63,7 @@ def create_model() -> bool:
         logger.error(e)
         raise e
 
-def load_predict(df:pd.DataFrame) -> bool:
+def load_predict(df:pd.DataFrame) -> int:
 
     """        
         Loads the model and predicts the data.
@@ -97,7 +99,7 @@ def load_predict(df:pd.DataFrame) -> bool:
     logger.addHandler(fh)
     try:
         # Laoding the model
-        filename = 'tree_model.joblib'
+        filename = './model/tree_model.joblib'
         logger.debug("Loading the Model")
         loaded_model = joblib.load(filename)
         logger.info("Model Loaded sucesfully")
@@ -108,13 +110,26 @@ def load_predict(df:pd.DataFrame) -> bool:
         logger.info("Prediction Done")
 
         if prediction[0] == 0:
-            return False
+            return 0
         elif prediction[0] == 1:
-            return True
+            return 1
     except Exception as e:
         logger.error(e)
         raise e
 
 if __name__ == "__main__":
+
     pass
+    # create_model()
+
+    # df_series = pd.read_csv('./data/train_dataset.csv').iloc[0][['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+    #    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+    #    'smoking']]
     
+    
+    # df = pd.DataFrame(columns=['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+    #    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+    #    'smoking'])
+    # df = df.append(df_series,ignore_index = True)
+    
+    # print(load_predict(df.iloc[:,:-1]))

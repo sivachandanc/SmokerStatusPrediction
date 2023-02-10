@@ -160,11 +160,11 @@ if __name__ == "__main__":
                     epilog = 'For further help go to\
                     https://github.com/sivachandanc/SmokerStatusPrediction')
 
-    parser.add_argument('-u','--user',required=True,help='User name for your snowflake')
+    parser.add_argument('-u','--user',required=False,help='User name for your snowflake')
     
-    parser.add_argument('-p','--password',required=True,help='Password for your snowflake account')
+    parser.add_argument('-p','--password',required=False,help='Password for your snowflake account')
 
-    parser.add_argument('-a','--account',required=True,\
+    parser.add_argument('-a','--account',required=False,\
         help='account Identifier for you snowflake account')
     
     args = parser.parse_args()
@@ -186,6 +186,7 @@ if __name__ == "__main__":
     # add fh to logger
     logger.addHandler(fh)
     logger.debug("Invoking putting_snowflake_creds() function")
-
+    if args.user is not None:
     # Calling the Function 
-    putting_snowflake_creds(args.user, args.password, args.account)
+        putting_snowflake_creds(args.user, args.password, args.account)
+    print(get_parameters('user_name'))

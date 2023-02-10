@@ -82,9 +82,20 @@ def inserting_data(df,database:str, schema:str,
 
 
 if __name__=="__main__":
+
+    # Testing
     
-    df = pd.DataFrame(pd.read_csv('./data/train_dataset.csv').iloc[0,:])
+    df_series = pd.read_csv('./data/train_dataset.csv').iloc[0][['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+       'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+       'smoking']]
     
-    # inserting_data(df,'smoking','public','accountadmin','compute_wh')
-    print(df.head())
-    # testing
+    
+    df = pd.DataFrame(columns=['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+       'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+       'smoking'])
+    df = df.append(df_series,ignore_index = True)
+
+    inserting_data(df,'smoking','public','accountadmin','compute_wh')
+
+
+
