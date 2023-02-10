@@ -51,7 +51,7 @@ if __name__=="__main__":
     logger.setLevel(logging.DEBUG)
 
     # create file handler and set level to debug
-    fh = logging.FileHandler('Connection_Test.log',mode='w')
+    fh = logging.FileHandler('./logs/Connection_Test.log',mode='w')
     fh.setLevel(logging.DEBUG)
 
     # create formatter

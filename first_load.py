@@ -1,15 +1,14 @@
 import pandas as pd
 
-import snowflake.connector
-
 from snowflake.sqlalchemy import URL
 
 from sqlalchemy import create_engine
 
 import argparse
 
-
 import logging
+
+import parameters
 
 
 
@@ -31,9 +30,9 @@ def ingest_data():
     try:
         logger.info("Creating SQL engine with give Credntials")
 
-        engine = create_engine(URL(user = args.user,\
-            password = args.password,\
-                account = args.account,\
+        engine = create_engine(URL(user = parameters.get_parameters('user_name'),\
+            password = parameters.get_parameters('password'),\
+                account = parameters.get_parameters('account_number'),\
                     database = args.database,\
                         schema=args.schema,\
                             role= args.role,\
@@ -57,11 +56,16 @@ def ingest_data():
 
             if i == 0:
                 logger.info(f"Creating {args.table} table")
+                df_chunk = df_chunk[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+                                    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+                                    'smoking']]
                 df_chunk.to_sql('smoking',con=conn,index=False,if_exists='replace')
                 logger.debug(f"Inserted Chunk{i+1}")
 
             else:
-
+                df_chunk = df_chunk[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
+                                    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
+                                    'smoking']]
                 df_chunk.to_sql(f'{args.table}',con=conn,index=False,if_exists='append')
                 logger.debug(f"Inserted Chunk{i+1}")
 
@@ -84,12 +88,6 @@ if __name__=="__main__":
                     epilog = 'For further help go to\
                     https://github.com/sivachandanc/SmokerStatusPrediction')
 
-    parser.add_argument('-u','--user',required=True,help='User name for your snowflake')
-    
-    parser.add_argument('-p','--password',required=True,help='Password for your snowflake account')
-
-    parser.add_argument('-a','--account',required=True,\
-        help='account Identifier for you snowflake account')
 
     parser.add_argument('-d','--database',required=True,help='Snowflake Database')
 
@@ -110,7 +108,7 @@ if __name__=="__main__":
     logger.setLevel(logging.DEBUG)
 
     # create file handler and set level to debug
-    fh = logging.FileHandler('first_load.log',mode='w')
+    fh = logging.FileHandler('./logs/first_load.log',mode='w')
     fh.setLevel(logging.DEBUG)
 
     # create formatter

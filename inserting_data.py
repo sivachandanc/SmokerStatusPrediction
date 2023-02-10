@@ -30,7 +30,7 @@ def inserting_data(df):
     logger.setLevel(logging.DEBUG)
 
     # create file handler and set level to debug
-    fh = logging.FileHandler('first_load.log',mode='w')
+    fh = logging.FileHandler('./logs/inserting_data.log',mode='w')
     fh.setLevel(logging.DEBUG)
 
     # create formatter

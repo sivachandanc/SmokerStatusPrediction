@@ -20,7 +20,7 @@ def create_model() -> bool:
     logger.setLevel(logging.DEBUG)
 
     # create file handler and set level to debug
-    fh = logging.FileHandler('Model_Creation.log',mode='w')
+    fh = logging.FileHandler('./logs/Model_Creation.log',mode='w')
     fh.setLevel(logging.DEBUG)
 
     # create formatter
@@ -36,6 +36,8 @@ def create_model() -> bool:
         logger.debug("Loading the CSV file")
         df_raw = pd.read_csv("./data/train_dataset.csv")
         logger.info("Sucessfully loaded the csv file")
+
+        # 
 
         #Loadng the Classifier
         logger.debug("Creating the Random Forest Classifier model")
@@ -82,7 +84,7 @@ def load_predict(df:pd.DataFrame) -> bool:
     logger.setLevel(logging.DEBUG)
 
     # create file handler and set level to debug
-    fh = logging.FileHandler('load_predict.log',mode='w')
+    fh = logging.FileHandler('./logs/load_predict.log',mode='w')
     fh.setLevel(logging.DEBUG)
 
     # create formatter
