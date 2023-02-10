@@ -47,7 +47,8 @@ def putting_snowflake_creds(user_name: str,
     logger.addHandler(fh)
     try:
         logger.debug("Creating Boto3 client")
-        ssm = boto3.client("ssm")
+        session = boto3.session.Session(region_name='us-west-2')
+        ssm = session.client("ssm")
         logger.info("Completed connecting the client")
 
 
@@ -124,10 +125,10 @@ def get_parameters(paramter_name: str)-> str:
     logger.addHandler(fh)
 
     try:
-    
+        session = boto3.session.Session(region_name='us-west-2')
         # Create a boto3 client for AWS Systems Manager Parameter Store
         logger.debug("Creating Boto3 client")
-        ssm = boto3.client("ssm")
+        ssm = session.client("ssm")
         logger.info("Completed connecting the client")
 
         # Retrieve the parameter from Parameter Store
