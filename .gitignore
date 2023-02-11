@@ -2,3 +2,6 @@ Notes.md
 *.log
 *.ipynb
 ./logs/*
+*.hcl
+*.tfstate
+*.tfstate.backup
