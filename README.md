@@ -72,7 +72,9 @@ python parameters.py -u <user_name> -p <pasword> -a <account_identifier>
 If your password has special characters use **""**
 
 6. Ingesting data into snowflake
-   ![Ingesting Frame Work](Diagrams/Smoker_Status_Prediction_Igestion_Frame_work.png)
+
+
+![Ingesting Frame Work](Diagrams/Smoker_Status_Prediction_Igestion_Frame_work.png)
 
 
 ```
