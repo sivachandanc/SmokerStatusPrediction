@@ -72,12 +72,14 @@ python parameters.py -u <user_name> -p <pasword> -a <account_identifier>
 If your password has special characters use **""**
 
 6. Ingesting data into snowflake
+   ![Ingesting Frame Work](/home/sivachandan/SmokerStatusPrediction/Diagrams/Smoker_Status_Prediction_Igestion_Frame_work.png)
+
 
 ```
 python first_load.py -d "<database>" -t "<table>" -s "<schema>" -fp "<data_path>"
 
 ```
-7. Training the model
+1. Training the model
 ```
 python model.py
 
