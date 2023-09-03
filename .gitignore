@@ -6,3 +6,4 @@ Notes.md
 *.tfstate.backup
 .terraform/
 __pycache__
+*.joblib
