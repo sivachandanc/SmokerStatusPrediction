@@ -7,7 +7,7 @@ app = Flask(__name__)
 def handle_webhook():
     repo = git.Repo("./")
     origin = repo.remote(name='origin')
-    origin.push()
+    origin.pull()
     # You can add more processing logic here, like saving the data to a database, etc.
     return jsonify({'status': 'success'}), 200
 
