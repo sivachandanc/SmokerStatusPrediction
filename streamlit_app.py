@@ -7,36 +7,6 @@ import time
 st.set_page_config(page_title="Smoking Prediction",
                    page_icon=":guardsman:")
 
-# Adding custom CSS to change the look and feel of the Streamlit app
-st.markdown("""
-<style>
-    body {
-        background-color: #F5F5F5;
-    }
-    h1, h2, h3, h4, h5, h6, p, a, li, label {
-        color: #222222;
-    }
-    .reportview-container .main .block-container {
-        background-color: #FFFFFF;
-        border: 1px solid #D3D3D3;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0px 0px 10px #D3D3D3;
-    }
-    .stSelectbox .menu .selected {
-        background-color: #3399FF;
-        color: #FFFFFF;
-    }
-    .stRadio .custom-control-input:checked~.custom-control-label::before {
-        background-color: #3399FF;
-        border-color: #3399FF;
-    }
-    .stCheckbox .custom-control-input:checked~.custom-control-label::before {
-        background-color: #3399FF;
-        border-color: #3399FF;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 st.title("Smoking Status Detection")
 st.subheader("An End-End Data Engineering Project by Siva Chandan")
@@ -46,7 +16,7 @@ with st.form("input_df"):
     
 
     Age = st.number_input("Age",min_value = 21, max_value =98 , \
-    help = "Enter your age here(Patient have to be 21 to use this)")
+    help = "Enter your age here(subject have to be 21 to use this)")
 
     height = st.number_input("Height(cm)", min_value = 54, max_value = 280, \
     value = 165, help = "Enter the height in cm")
@@ -85,20 +55,19 @@ if submit_function:
     smoking_status = model.load_predict(df)
     st.markdown("<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.14.0/css/all.css' integrity='sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc' crossorigin='anonymous'>", unsafe_allow_html=True)
     if smoking_status == 1:
-        # Include the Font Awesome CSS file
-
         # Display the icon
-        st.markdown("<p><strong>The Patient is Smoking <i class='fas fa-smoking'></i></strong></p>", unsafe_allow_html=True)
+        st.markdown("<p><strong>The Subject is Smoking <i class='fas fa-smoking'></i></strong></p>", unsafe_allow_html=True)
     elif smoking_status == 0:
         # Display the icon
-        st.markdown("<p><strong>The Patient is Not Smoking <i class='fas fa-smoking-ban'></i></strong></p>", unsafe_allow_html=True)
+        st.markdown("<p><strong>The Subject is Not Smoking <i class='fas fa-smoking-ban'></i></strong></p>", unsafe_allow_html=True)
+    
 
 
 
     if answer == 'Yes':
         with st.spinner('Adding Data'):
             st.dataframe(df)
-            inserting_data.inserting_data(df,'smoking','public','accountadmin','compute_wh')
+            inserting_data.inserting_data(df)
             st.success('Record Appended', icon="✅")
                 
     elif answer == "No":

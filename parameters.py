@@ -1,7 +1,7 @@
 import boto3
-import logging
 import argparse
-
+import configparser
+from custom_loggin import log
 
 def putting_snowflake_creds(user_name: str, 
                             password: str, 
@@ -29,25 +29,21 @@ def putting_snowflake_creds(user_name: str,
             If any error occurs while storing the Snowflake User Name, Password and Account Identifier in the AWS Parameter Store.
     """
 
-    # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    # Reading the Config File
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    parameter_store_log = config['parameter_store']['parameter_store_log']
+    parameter_user_name = config['parameter_store']['parameter_user_name']
+    parameter_snowflake_pass = config['parameter_store']['parameter_snowflake_pass']
+    parameter_account_number = config['parameter_store']['parameter_account_number']
+    aws_region = config['aws']['aws_region']
 
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/loading_parameters.log',mode='w')
-    fh.setLevel(logging.DEBUG)
+    # Create logger
+    logger = log(parameter_store_log)
 
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
     try:
         logger.debug("Creating Boto3 client")
-        session = boto3.session.Session(region_name='us-west-2')
+        session = boto3.session.Session(region_name=aws_region)
         ssm = session.client("ssm")
         logger.info("Completed connecting the client")
 
@@ -55,7 +51,7 @@ def putting_snowflake_creds(user_name: str,
         # Storing the User name in Parameter Store
         logger.debug("Storing the User name in Parameter Store")
         response_username = ssm.put_parameter(
-            Name='user_name',
+            Name=parameter_user_name,
             Description="This is Snowflake User name stored in Parameter Store",
             Value=user_name,
             Type="String",
@@ -66,7 +62,7 @@ def putting_snowflake_creds(user_name: str,
         # Storing Snowflake User Password in the Parameter Store
         logger.debug("Storing the Snowflake Password")
         response_password = ssm.put_parameter(
-            Name='password',
+            Name=parameter_snowflake_pass,
             Description="This Snowflake user password stored in Parameter Store",
             Value=password,
             Type="String",
@@ -77,7 +73,7 @@ def putting_snowflake_creds(user_name: str,
         # Storing the account_identifier in the Parameter Store
         logger.debug("Storing the Snowflake Account Identifier")
         response_account_number = ssm.put_parameter(
-            Name='account_number',
+            Name=parameter_account_number,
             Description="This is Account Identifier Parameter Store",
             Value=account_number,
             Type="String",
@@ -106,26 +102,18 @@ def get_parameters(paramter_name: str)-> str:
     It returns the parameter value.
     
     """
+    
+    # Reading the Config File
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    parameter_getting_log = config['parameter_store']['parameter_getting_log']
+    aws_region = config['aws']['aws_region']
 
     # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/getting_parameters.log',mode='w')
-    fh.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
+    logger = log(parameter_getting_log)
 
     try:
-        session = boto3.session.Session(region_name='us-west-2')
+        session = boto3.session.Session(region_name=aws_region)
         # Create a boto3 client for AWS Systems Manager Parameter Store
         logger.debug("Creating Boto3 client")
         ssm = session.client("ssm")
@@ -154,6 +142,8 @@ def get_parameters(paramter_name: str)-> str:
 
 
 if __name__ == "__main__":
+
+    # For Testing
     
     parser = argparse.ArgumentParser(
                     prog = 'Paramter Store',
@@ -170,23 +160,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-       # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/parameters_main.log',mode='w')
-    fh.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
-    logger.debug("Invoking putting_snowflake_creds() function")
     if args.user is not None:
     # Calling the Function 
         putting_snowflake_creds(args.user, args.password, args.account)

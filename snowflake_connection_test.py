@@ -1,54 +1,46 @@
 import pandas as pd
-from snowflake.sqlalchemy import URL
-from sqlalchemy import create_engine
-import logging
+import snowflake.connector
+from custom_loggin import log
+import configparser
 import parameters
 
 # Gets the version
-def check_coneection():
+def check_conection():
     """
     This function checks the connection to the database.
     It prints the current version of the database and
     a message that the connection was succesfull.
     """
     # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    snowflake_connection_test_log = config['snowflake_connection_test']\
+                                            ['snowflake_connection_test_log']
+    parameter_user_name = config['parameter_store']['parameter_user_name']
+    parameter_snowflake_pass=config['parameter_store']['parameter_snowflake_pass']
+    parameter_account_number=config['parameter_store']['parameter_account_number']
+    logger = log(snowflake_connection_test_log)
 
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/Connection_Test.log',mode='w')
-    fh.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
-
-    logger.info("Creating Engine")
-
-    engine = create_engine(URL(user = parameters.get_parameters('user_name'),\
-        password = parameters.get_parameters('password'),\
-            account = parameters.get_parameters('account_number')))
-
-    logger.debug("Engine Created Sucessfully")
-    logger.info("Creating a Connection Object")
-    conn = engine.connect()
+    logger.info("Creating Connection object")
+    con = snowflake.connector.connect(
+    user=parameters.get_parameters(parameter_user_name),
+    password=parameters.get_parameters(parameter_snowflake_pass),
+    account=parameters.get_parameters(parameter_account_number),
+    session_parameters={
+        'QUERY_TAG': 'CheckingSnowFlakeConnection',
+    }
+)
     logger.debug("Sucessfully Created a Connection Object")
 
     try:
-        one_row = conn.execute("SELECT current_version()").fetchone()
+        one_row = con.cursor().execute("SELECT current_version()").fetchone()
         logger.info(one_row[0])
         logger.debug("Connection Succesfull")
-        print("Connection Succesfull")
+        logger.info("Connection Succesfull")
     finally:
         logger.info("Closing connection")
-        conn.close()
-        engine.dispose()
+        con.close()
 
 if __name__=="__main__":
     #Calling the Funtion
-    check_coneection()
+    check_conection()

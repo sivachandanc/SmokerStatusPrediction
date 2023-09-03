@@ -1,17 +1,9 @@
 import pandas as pd
-
-from snowflake.sqlalchemy import URL
-
 from sqlalchemy import create_engine
-
-import argparse
-
-import logging
-
+from snowflake.sqlalchemy import URL
+from custom_loggin import log
 import parameters
-
-
-
+import configparser
 
 def ingest_data():
     """
@@ -27,99 +19,76 @@ def ingest_data():
     8. table: Snowflake table name
     """
 
+    # Reading the Config File
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    first_load_log = config['first_load']['first_load_log']
+    parameter_user_name = config['parameter_store']['parameter_user_name']
+    parameter_snowflake_pass=config['parameter_store']['parameter_snowflake_pass']
+    parameter_account_number=config['parameter_store']['parameter_account_number']
+    file_to_ingest = config['model']['training_data_location']
+    database = config['snowflake']['database']
+    schema = config['snowflake']['schema']
+    table = config['snowflake']['table']
+    role = config['snowflake']['role']
+    warehouse = config['snowflake']['warehouse']
+
+    #Creating the Logger
+    logger = log(first_load_log)
+
     try:
-        logger.info("Creating SQL engine with give Credntials")
 
-        engine = create_engine(URL(user = parameters.get_parameters('user_name'),\
-            password = parameters.get_parameters('password'),\
-                account = parameters.get_parameters('account_number'),\
-                    database = args.database,\
-                        schema=args.schema,\
-                            role= args.role,\
-                                warehouse = args.warehouse))
-
-        logger.debug("Engine Created Sucesfully")
-        logger.info("Creating a Connection Object")
-
+        engine = create_engine(URL(user = parameters.get_parameters(parameter_user_name),\
+            password = parameters.get_parameters(parameter_snowflake_pass),\
+                account = parameters.get_parameters(parameter_account_number),\
+                    database = database,\
+                        schema=schema,\
+                            role= role,\
+                                warehouse = warehouse))
         conn = engine.connect()
+
+        
         one_row = conn.execute("SELECT current_version()").fetchone()
-
         logger.debug(f"Connection Object Created Succesfully -> {one_row[0]}")
-        logger.info("Reading Data")
 
-        df_chunks = pd.read_csv('./data/train_dataset.csv',chunksize=1000)
+        logger.info("Reading Data")
+        df_chunks = pd.read_csv(file_to_ingest,chunksize=1000)
 
         logger.debug("Data Loaded into DataFrame")
         logger.info("Loading Data Chunk wise")
 
+
         for i,df_chunk in enumerate(df_chunks):
 
             if i == 0:
-                logger.info(f"Creating {args.table} table")
+                logger.info(f"Creating {table} table")
                 df_chunk = df_chunk[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
                                     'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
                                     'smoking']]
-                df_chunk.to_sql('smoking',con=conn,index=False,if_exists='replace')
+                # success, nchunks, nrows, _ = write_pandas(conn, df_chunk, 'smoking')
+                df_chunk.to_sql(table,con=conn,index=False,if_exists='replace')
                 logger.debug(f"Inserted Chunk{i+1}")
 
             else:
                 df_chunk = df_chunk[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
                                     'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
                                     'smoking']]
-                df_chunk.to_sql(f'{args.table}',con=conn,index=False,if_exists='append')
+                # success, nchunks, nrows, _ = write_pandas(conn, df_chunk, 'smoking')
+                df_chunk.to_sql(table,con=conn,index=False,if_exists='append')
                 logger.debug(f"Inserted Chunk{i+1}")
 
         logger.debug("All the data Chunks insterted")
-        conn.close()
-        engine.dispose()
 
     except Exception as e:
         logger.error(e)
         raise e
+    finally:
+        conn.close()
+        engine.dispose()
        
 
 
 if __name__=="__main__":
-
-    parser = argparse.ArgumentParser(
-                    prog = 'FirstLoad',
-                    description = 'Loads the Data from \
-                    https://www.kaggle.com/datasets/gauravduttakiit/smoker-status-prediction',
-                    epilog = 'For further help go to\
-                    https://github.com/sivachandanc/SmokerStatusPrediction')
-
-
-    parser.add_argument('-d','--database',required=True,help='Snowflake Database')
-
-    parser.add_argument('-s','--schema',required=True,help='Snowflake Schema')
-
-    parser.add_argument('-t','--table',required=True,help='Snowflake target table')
-
-    parser.add_argument('-r','--role',default='accountadmin')
-
-    parser.add_argument('-w','--warehouse',default='compute_wh',help='Snowflake Compute warehouse')
-
-    parser.add_argument('-fp','--filepath',required=True)
-
-    args = parser.parse_args()
-
-    # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/first_load.log',mode='w')
-    fh.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
-    logger.debug("Invoking ingest_data() function")
 
     # Calling the Function 
     ingest_data()

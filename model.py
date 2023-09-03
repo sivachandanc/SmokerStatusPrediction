@@ -3,7 +3,9 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import joblib
-import logging
+from custom_loggin import log
+import configparser
+
 
 def create_model() -> bool:
 
@@ -14,27 +16,20 @@ def create_model() -> bool:
         True: If the model is created and saved successfully
         False: If the model is not created and saved successfully
     """
-    
-    # create logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    # Reading the Cofig File
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    model_taining_log = config['model']['model_training_log']
+    model_file_name = config['model']['model_file']
+    training_data_location = config['model']['training_data_location']
 
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/Model_Creation.log',mode='w')
-    fh.setLevel(logging.DEBUG)
+    # Creating the Logger
+    logger = log(model_taining_log)
 
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
     try:
         # Loading the data
-        logger.debug("Loading the CSV file")
-        df_raw = pd.read_csv("./data/train_dataset.csv")
+        logger.debug(f"Loading the CSV file from {training_data_location}")
+        df_raw = pd.read_csv(training_data_location)
         df_raw = df_raw[['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
        'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
        'smoking']]
@@ -52,10 +47,9 @@ def create_model() -> bool:
         logger.info("Training Done")
 
         # Saving the model
-        filename = './model/tree_model.joblib'
         logger.debug("Saving the model")
-        joblib.dump(model, filename)
-        logger.info("Model saved as tree_model.joblib")
+        joblib.dump(model, model_file_name)
+        logger.info(f"Model saved at {model_file_name}")
 
         return True
 
@@ -80,28 +74,19 @@ def load_predict(df:pd.DataFrame) -> int:
         Exception
             If any error occurs.
     """
+    # Reading the Cofig File
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    model_predict_log = config['model']['model_predict_log']
+    model_file_name = config['model']['model_file']
 
+    # Creating a Logger
+    logger = log(model_predict_log)
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    # create file handler and set level to debug
-    fh = logging.FileHandler('./logs/load_predict.log',mode='w')
-    fh.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to fh
-    fh.setFormatter(formatter)
-
-    # add fh to logger
-    logger.addHandler(fh)
     try:
-        # Laoding the model
-        filename = './model/tree_model.joblib'
+        # Loading the model
         logger.debug("Loading the Model")
-        loaded_model = joblib.load(filename)
+        loaded_model = joblib.load(model_file_name)
         logger.info("Model Loaded sucesfully")
 
         # Prdicting the data
@@ -119,17 +104,4 @@ def load_predict(df:pd.DataFrame) -> int:
 
 if __name__ == "__main__":
 
-    # pass
     create_model()
-
-    # df_series = pd.read_csv('./data/train_dataset.csv').iloc[0][['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
-    #    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
-    #    'smoking']]
-    
-    
-    # df = pd.DataFrame(columns=['age', 'height(cm)', 'weight(kg)', 'waist(cm)', 'fasting blood sugar',
-    #    'Cholesterol', 'hemoglobin', 'Urine protein', 'serum creatinine',
-    #    'smoking'])
-    # df = df.append(df_series,ignore_index = True)
-    
-    # print(load_predict(df.iloc[:,:-1]))
